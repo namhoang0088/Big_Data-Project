@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency Prices</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Cryptocurrency Prices</h2>
+
+<table id="crypto-table">
+    <tr>
+        <th>Name</th>
+        <th>Price (USD)</th>
+        <th> Change</th>
+    </tr>
+    <tr>
+        <td id="btc-name">
+            <img src="/icon/BTC.png" alt="BTC Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">BTC</strong>
+        </td>
+        <td id="btc-price">$N/A</td>
+        <td id="btc-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="eth-name">
+            <img src="/icon/ETH.png" alt="ETH Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">ETH</strong>
+        </td>
+        <td id="eth-price">$N/A</td>
+        <td id="eth-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="xrp-name">
+            <img src="/icon/XRP.png" alt="XRP Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">XRP</strong>
+        </td>
+        <td id="xrp-price">$N/A</td>
+        <td id="xrp-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="bch-name">
+            <img src="/icon/BCH.png" alt="BCH Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">BCH</strong>
+        </td>
+        <td id="bch-price">$N/A</td>
+        <td id="bch-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="ltc-name">
+            <img src="/icon/LTC.png" alt="LTC Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">LTC</strong>
+        </td>
+        <td id="ltc-price">$N/A</td>
+        <td id="ltc-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="ada-name">
+            <img src="/icon/ADA.png" alt="ADA Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">ADA</strong>
+        </td>
+        <td id="ada-price">$N/A</td>
+        <td id="ada-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="dot-name">
+            <img src="/icon/DOT.png" alt="DOT Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">DOT</strong>
+        </td>
+        <td id="dot-price">$N/A</td>
+        <td id="dot-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="bnb-name">
+            <img src="/icon/BNB.png" alt="BNB Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">BNB</strong>
+        </td>
+        <td id="bnb-price">$N/A</td>
+        <td id="bnb-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="link-name">
+            <img src="/icon/LINK.png" alt="LINK Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">LINK</strong>
+        </td>
+        <td id="link-price">$N/A</td>
+        <td id="link-change">$N/A</td>
+    </tr>
+    <tr>
+        <td id="xlm-name">
+            <img src="/icon/XLM.png" alt="XLM Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+            <strong style="vertical-align: middle;">XLM</strong>
+        </td>
+        <td id="xlm-price">$N/A</td>
+        <td id="xlm-change">$N/A</td>
+    </tr>
+</table>
+
+<script>
+// Định nghĩa một đối tượng để lưu trữ giá trị trước đó của các đồng coin
+let previousPrices = {};
+
+const eventSource = new EventSource('/events');
+eventSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+
+    // Lấy biểu tượng tiền điện tử
+    const symbol = JSON.parse(data.price).symbol;
+
+    // Kiểm tra xem dữ liệu có phải là cho biểu tượng BTC, ETH, XRP, BCH, LTC, ADA, DOT, BNB, LINK hoặc XLM không
+    if (['BTC', 'ETH', 'XRP', 'BCH', 'LTC', 'ADA', 'DOT', 'BNB', 'LINK', 'XLM'].includes(symbol)) {
+        // Parse JSON để lấy thông tin giá và nhân với 100%
+        const priceData = JSON.parse(data.price);
+        const price = parseFloat(priceData.price) * 100;
+
+        // Tính toán sự thay đổi so với giá trước đó (nếu có)
+        let change = '';
+        if (previousPrices[symbol] !== undefined) {
+            const previousPrice = previousPrices[symbol];
+            const diff = price - previousPrice;
+            change = (diff / previousPrice * 100).toFixed(6) + '%';
+        }
+
+        // Cập nhật giá trị trước đó cho biểu tượng hiện tại
+        previousPrices[symbol] = price;
+
+        // Hiển thị giá và sự thay đổi trong bảng
+        document.getElementById(`${symbol.toLowerCase()}-price`).innerText = `$${price.toFixed(2)}`;
+        document.getElementById(`${symbol.toLowerCase()}-change`).innerText = change;
+    } else {
+        console.error('Data is not for BTC, ETH, XRP, BCH, LTC, ADA, DOT, BNB, LINK or XLM.');
+    }
+};
+</script>
+
+</body>
+</html>
